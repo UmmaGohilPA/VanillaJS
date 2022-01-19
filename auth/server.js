@@ -26,6 +26,9 @@ http
       const { name } = qs.parse(query);
       const expires = new Date();
       expires.setMinutes(expires.getMinutes() + 1);
+      // instead of sending user info (user name), semd random int
+      // set name and expire time within session object
+      // if cookie.session doesn't exceed expiration date, get user info from ession variable
       const randomInt = +new Date();
       session[randomInt] = {
         name,

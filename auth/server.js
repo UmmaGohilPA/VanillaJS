@@ -14,6 +14,8 @@ const parseCookies = (cookie = "") =>
       return acc;
     }, {});
 
+const session = {};
+
 //analyse the cookie
 http
   .createServer((req, res) => {
@@ -24,16 +26,22 @@ http
       const { name } = qs.parse(query);
       const expires = new Date();
       expires.setMinutes(expires.getMinutes() + 1);
+      const randomInt = +new Date();
+      session[randomInt] = {
+        name,
+        expires,
+      };
       res.writeHead(302, {
         Location: "/",
-        "Set-Cookie": `name=${encodeURIComponent(
-          name
-        )};Expires=${expires.toGMTString()};HttpOnly; Path=/`,
+        "Set-Cookie": `session=${randomInt};Expires=${expires.toUTCString()};HttpOnly;Path=/`,
       });
       res.end();
-    } else if (cookies.name) {
+    } else if (
+      cookies.session &&
+      session[cookies.session].expires > new Date()
+    ) {
       res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-      res.end(`Welcome ${cookies.name}`);
+      res.end(`Welcome ${session[cookies.session].name}`);
     } else {
       fs.readFile("./login.html", (err, data) => {
         if (err) {
